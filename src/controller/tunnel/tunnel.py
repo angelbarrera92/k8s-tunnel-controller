@@ -1,22 +1,25 @@
-from pykube import Pod
 from logging import getLogger
+
+from pykube import Pod, Service
 from src.kubernetes.connection import kubernetes_api
+from src.kubernetes.ensure import ensure
 
 logger = getLogger(__name__)
 
 
 @kubernetes_api
-def tunnel(api, service_name, service_namespace, port, subdomain):
+def tunnel(api, svc: Service, port: int, subdomain: str):
     logger.info(
-        f"creating tunnel for service {service_namespace}/{service_name} in the port {port} on {subdomain} subdomain")
+        f"ensuring tunnel for service {svc.namespace}/{svc.name} in the port {port} on {subdomain} subdomain")
     podSpec = {
         "apiVersion": "v1",
         "kind": "Pod",
         "metadata": {
             "name": subdomain,
-            "namespace": service_namespace,
+            "namespace": svc.namespace,
         },
         "spec": {
+            "automountServiceAccountToken": False,
             "containers": [
                 {
                     "image": "docker.io/angelbarrera92/lt:local",
@@ -28,7 +31,7 @@ def tunnel(api, service_name, service_namespace, port, subdomain):
                         "-s",
                         subdomain,
                         "-l",
-                        service_name,
+                        svc.name,
                         "-p",
                         f"{port}",
                         "--print-requests"
@@ -40,11 +43,10 @@ def tunnel(api, service_name, service_namespace, port, subdomain):
         }
     }
     tunnelPod = Pod(api, podSpec)
-    tunnelPod.create()
+    tunnelPod = ensure(tunnelPod, svc)
 
-# TODO. The created pod must have the service with the annotation as its parent
 # TODO. The container image used for the tunnel has to be set as controller configuration
 # TODO. Need to set the resources as low as possible.
 # TODO. Evaluate setting up my own host and make it configurable
-# TODO. Adopt the pod. Service must be its parent
 # TODO. This is an optimistic approach. Ideally, the new pod should notify somehow the controller that is ready to accept requests.
+# TODO. Add labels to the pod to identify it as a tunnel pod.
