@@ -1,0 +1,16 @@
+---
+# TODO: Pipeline that builds container images in the repo, then pushes to the github registry
+name: stable
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  images:
+    name: Container Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
