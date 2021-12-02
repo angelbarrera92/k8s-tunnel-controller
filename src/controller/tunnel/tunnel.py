@@ -8,7 +8,7 @@ logger = getLogger(__name__)
 
 
 @kubernetes_api
-def tunnel(api, svc: Service, port: int, subdomain: str):
+def create(api, svc: Service, port: int, subdomain: str):
     logger.info(
         f"ensuring tunnel for service {svc.namespace}/{svc.name} in the port {port} on {subdomain} subdomain")
     name = f"{svc.name}-{port}-tunnel"
@@ -22,8 +22,8 @@ def tunnel(api, svc: Service, port: int, subdomain: str):
                 "app.kubernetes.io/name": "tunnel",
                 "app.kubernetes.io/instance": name,
                 "app.kubernetes.io/version": "v1",
-                "app.kubernetes.io/component": "tunnel",
-                "app.kubernetes.io/part-of": f"svc/{svc.name}",
+                "app.kubernetes.io/component": f"subdomain/{subdomain}",
+                "app.kubernetes.io/part-of": f"service/{svc.name}",
                 "app.kubernetes.io/managed-by": "k8s-tunnel-controller"
             }
         },

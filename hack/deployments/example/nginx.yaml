@@ -23,7 +23,7 @@ metadata:
   name: nginx
   namespace: default
   annotations:
-    angelbarrera92/tunnel: nginx-random-goes-here-xyz123
+    k8s-tunnel-controller/tunnel: nginx-random-goes-here-xyz123
 spec:
   ports:
   - port: 80

@@ -23,7 +23,7 @@ metadata:
   name: httpbin
   namespace: default
   annotations:
-    angelbarrera92/tunnel: httpbin-random-goes-here-xyz123
+    k8s-tunnel-controller/tunnel: httpbin-random-goes-here-xyz123
 spec:
   ports:
   - port: 80

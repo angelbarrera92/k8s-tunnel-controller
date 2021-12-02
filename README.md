@@ -86,7 +86,7 @@ nginx                           1/1     Running             0          37s
 nginx-random-goes-here-xyz123   0/1     ContainerCreating   0          37s
 ```
 
-The `nginx-random-goes-here-xyz123` pod has been created by the controller. Why? Because the service contains a magic annotation: `angelbarrera92/tunnel: nginx-random-goes-here-xyz123`
+The `nginx-random-goes-here-xyz123` pod has been created by the controller. Why? Because the service contains a magic annotation: `k8s-tunnel-controller/tunnel: nginx-random-goes-here-xyz123`
 
 ```bash
 $ kubectl get svc nginx -o yaml
@@ -94,7 +94,7 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    angelbarrera92/tunnel: nginx-random-goes-here-xyz123
+    k8s-tunnel-controller/tunnel: nginx-random-goes-here-xyz123
 <REDACTED>
 ```
 
