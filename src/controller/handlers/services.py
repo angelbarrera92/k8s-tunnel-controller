@@ -27,6 +27,26 @@ def reconcile_tunnel_service(name, namespace, **_):
     reconcile(name, namespace)
 
 
+@kopf.on.field("", "v1", "service", field="metadata.annotations")
+def update_service_annotations(diff, **_):
+    logger.info(f"update service annotations: {diff}")
+
+    # This is whay the method receives in the diff attribute.
+    # (('add', ('hi',), None, 'hi'),)
+    # (('change', ('hi',), 'hi', 'hi2'),)
+    # (('remove', ('hi',), 'hi2', None),)
+
+    for d in diff:
+        action = d[0]
+        annotation = d[1][0]
+        oldValue = d[2]
+        newValue = d[3]
+        logger.info(f"action: {action}")
+        logger.info(f"annotation: {annotation}")
+        logger.info(f"oldValue: {oldValue}")
+        logger.info(f"newValue: {newValue}")
+
+
 def reconcile(name, namespace):
     svc = services.get(namespace=namespace, name=name)
 
@@ -53,6 +73,12 @@ def reconcile(name, namespace):
             logger.error(
                 f"no port in annotation and more than one port in service {namespace}/{name}")
             # TODO. Fail reconciliation. Check kopf docs
+
+    subdomain = svc.annotations.get(TUNNEL_ANNOTATION, None)
+    if not subdomain:  # Add dns validation to subdomain value
+        logger.error(
+            f"no subdomain in annotation for service {namespace}/{name}")
+        # TODO. Fail reconciliation. Check kopf docs
 
     tunnel.create(svc=svc,
                   port=port, subdomain=svc.annotations[TUNNEL_ANNOTATION])

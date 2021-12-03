@@ -23,7 +23,7 @@ def create(api, svc: Service, port: int, subdomain: str):
                 "app.kubernetes.io/instance": name,
                 "app.kubernetes.io/version": "v1",
                 "app.kubernetes.io/component": f"subdomain/{subdomain}",
-                "app.kubernetes.io/part-of": f"service/{svc.name}",
+                "app.kubernetes.io/part-of": f"service/{svc.name}/{port}",
                 "app.kubernetes.io/managed-by": "k8s-tunnel-controller"
             }
         },
