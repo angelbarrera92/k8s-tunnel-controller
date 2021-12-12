@@ -28,23 +28,30 @@ def reconcile_tunnel_service(name, namespace, **_):
 
 
 @kopf.on.field("", "v1", "service", field="metadata.annotations")
-def update_service_annotations(diff, **_):
-    logger.info(f"update service annotations: {diff}")
+def update_service_annotations(diff, name, namespace, **_):
+    logger.info(f"update service {namespace}/{name} annotations: {diff}")
 
     # This is whay the method receives in the diff attribute.
     # (('add', ('hi',), None, 'hi'),)
     # (('change', ('hi',), 'hi', 'hi2'),)
     # (('remove', ('hi',), 'hi2', None),)
+    # - Remove annotation. Should remove the pod tunnel.
 
     for d in diff:
         action = d[0]
-        annotation = d[1][0]
-        oldValue = d[2]
-        newValue = d[3]
-        logger.info(f"action: {action}")
-        logger.info(f"annotation: {annotation}")
-        logger.info(f"oldValue: {oldValue}")
-        logger.info(f"newValue: {newValue}")
+        try:
+            annotation = d[1][0]
+        except IndexError:
+            annotation = None
+        if annotation and annotation == TUNNEL_ANNOTATION:
+            svc = services.get(namespace=namespace, name=name)
+            podTunnel = tunnel.find_tunnel(svc=svc)
+            if action == 'remove':
+                logger.info(
+                    f"remove tunnel pod for service {namespace}/{name}")
+                podTunnel.delete()
+            elif action in ["add", "change"]:
+                reconcile(name, namespace)
 
 
 def reconcile(name, namespace):
@@ -55,6 +62,12 @@ def reconcile(name, namespace):
     # If not present, fallback to the first port if only one is present.
     # else fails.
 
+    subdomain = svc.annotations.get(TUNNEL_ANNOTATION, None)
+    if not subdomain:  # Add dns validation to subdomain value
+        errorMsg = f"no subdomain in annotation for service {namespace}/{name}"
+        logger.error(errorMsg)
+        raise kopf.PermanentError(errorMsg)
+
     port = None
     portInAnnotation = svc.annotations.get(PORT_ANNOTATION, None)
     if portInAnnotation:
@@ -62,30 +75,41 @@ def reconcile(name, namespace):
             if p["port"] == int(portInAnnotation):
                 port = p["port"]
         if not port:
-            logger.error(
-                f"port {portInAnnotation} not found in service {namespace}/{name}")
-            # TODO. Fail reconciliation. Check kopf docs
+            errorMsg = f"port {portInAnnotation} not found in service {namespace}/{name}"
+            logger.error(errorMsg)
+            raise kopf.PermanentError(errorMsg)
     else:
         logger.info(f"no port in annotation for service {namespace}/{name}")
         if len(svc.obj["spec"]["ports"]) == 1:
             port = svc.obj["spec"]["ports"][0]["port"]
         else:
-            logger.error(
-                f"no port in annotation and more than one port in service {namespace}/{name}")
-            # TODO. Fail reconciliation. Check kopf docs
+            errorMsg = f"no port in annotation and more than one port in service {namespace}/{name}"
+            logger.error(errorMsg)
+            raise kopf.PermanentError(errorMsg)
 
-    subdomain = svc.annotations.get(TUNNEL_ANNOTATION, None)
-    if not subdomain:  # Add dns validation to subdomain value
-        logger.error(
-            f"no subdomain in annotation for service {namespace}/{name}")
-        # TODO. Fail reconciliation. Check kopf docs
+    logger.info(
+        f"reconcile service {namespace}/{name} with subdomain {subdomain} and port {port}")
 
-    tunnel.create(svc=svc,
-                  port=port, subdomain=svc.annotations[TUNNEL_ANNOTATION])
+    podTunnel = tunnel.find_tunnel(svc=svc)
+    if not podTunnel:
+        logger.info(f"no tunnel found for service {namespace}/{name}")
+        logger.info(f"creating tunnel for service {namespace}/{name}")
+        tunnel.create(svc=svc,
+                      port=port, subdomain=subdomain)
+    else:
+        logger.info(f"tunnel found for service {namespace}/{name}")
+        current_port = int(podTunnel.labels.get("app.kubernetes.io/port"))
+        current_subdomain = podTunnel.labels.get(
+            "app.kubernetes.io/subdomain")
+        if current_port != port or current_subdomain != subdomain:
+            logger.info(f"updating tunnel for service {namespace}/{name}")
+            logger.info(f"deleting tunnel for service {namespace}/{name}")
+            podTunnel.delete()
+            logger.info(f"creating tunnel for service {namespace}/{name}")
+            tunnel.create(svc=svc,
+                          port=port, subdomain=subdomain)
 
 # TODO. Think about adding a new status event when tunnel pod is deployed
-# TODO. Listen for pods with certain labels, then run the reconciliation loop
-# TODO. Cover update subdomain use-case
-# TODO. Cover update port use-case
+# TODO. Listen for pods with certain annotations, then run the reconciliation loop
 # TODO. Validate subdomain format
 # TODO. Validate port format. Only numbers allowed.

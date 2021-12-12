@@ -3,9 +3,9 @@
 This project is an **MVP** demonstrating how easy is to expose an internal Kubernetes services to the worlwide
 with automatic TLS without cert-manager, DNS or opening ports in your home network/router.
 
-## Based on localtunnel
+## Based on go-http-tunnel
 
-This project uses the [localtunnel](https://github.com/localtunnel/localtunnel) by [`defunctzombie`](https://github.com/defunctzombie) upstream projec.
+This project uses the [go-http-tunnel](https://github.com/mmatczuk/go-http-tunnel) by [`mmatczuk`](https://github.com/mmatczuk) upstream projec.
 
 ## MVP: run it locally
 
@@ -14,10 +14,10 @@ This project uses the [localtunnel](https://github.com/localtunnel/localtunnel) 
 Basic requirements these days:
 
 - kind - kubectl *(of course)*
-- access to localtunnel (not reachable from some companies firewall)
 - access to dockerhub (tunnel container image currently there)
 - python 3.9 - virtualenv
 - git
+- openssl
 
 ### Let's go
 
@@ -27,11 +27,11 @@ Basic requirements these days:
 $ kind create cluster --name tunnels
 Creating cluster "tunnels" ...
  ✓ Ensuring node image (kindest/node:v1.21.1) 🖼
- ✓ Preparing nodes 📦  
- ✓ Writing configuration 📜 
- ✓ Starting control-plane 🕹️ 
- ✓ Installing CNI 🔌 
- ✓ Installing StorageClass 💾 
+ ✓ Preparing nodes 📦
+ ✓ Writing configuration 📜
+ ✓ Starting control-plane 🕹️
+ ✓ Installing CNI 🔌
+ ✓ Installing StorageClass 💾
 Set kubectl context to "kind-tunnels"
 You can now use your cluster with:
 
@@ -46,6 +46,19 @@ tunnels-control-plane   Ready    control-plane,master   3m38s   v1.21.1
 ```
 
 #### Run the project
+
+##### Pre-requisites
+
+This is a **MVP**, so we need to install some pre-requisites.
+This certificates must be generated per namespace and must be the controller the one in charge of creating it.
+
+```bash
+$ openssl req -x509 -nodes -newkey rsa:2048 -sha256 -keyout client.key -out client.crt
+$ kubectl create secret tls k8s-tunnel-controller-certs --cert client.crt --key client.key
+secret/k8s-tunnel-controller-certs created
+```
+
+##### Run the project
 
 ```bash
 $ git clone git@github.com:angelbarrera92/k8s-tunnel-controller.git
@@ -72,7 +85,7 @@ $ export KUBECONFIG=$(pwd)/kubeconfig
 $ kubectl get nodes
 NAME                    STATUS   ROLES                  AGE     VERSION
 tunnels-control-plane   Ready    control-plane,master   3m38s   v1.21.1
-$ kubectl apply -f hack/deployments/example/nginx.yaml 
+$ kubectl apply -f hack/deployments/example/nginx.yaml
 pod/nginx created
 service/nginx created
 ```
