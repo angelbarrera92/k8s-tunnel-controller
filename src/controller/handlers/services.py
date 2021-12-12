@@ -26,6 +26,16 @@ def reconcile_tunnel_service(name, namespace, **_):
 
     reconcile(name, namespace)
 
+# This is currently not working properly.
+# Pods is being deleted, then the reconciliation loop is still able to find it.
+@kopf.on.delete("", "v1", "pods", labels={"app.kubernetes.io/managed-by": "k8s-tunnel-controller"})
+def delete_tunnel_pod(name, namespace, labels, **_):
+    logger.info(
+        f"delete pod ({namespace}/{name}) listened with the app.kubernetes.io/managed-by label")
+
+    serviceName = labels.get("app.kubernetes.io/service")
+    reconcile(serviceName, namespace)
+
 
 @kopf.on.field("", "v1", "service", field="metadata.annotations")
 def update_service_annotations(diff, name, namespace, **_):
@@ -39,6 +49,7 @@ def update_service_annotations(diff, name, namespace, **_):
 
     for d in diff:
         action = d[0]
+        # TODO: Improve this code-block
         try:
             annotation = d[1][0]
         except IndexError:
