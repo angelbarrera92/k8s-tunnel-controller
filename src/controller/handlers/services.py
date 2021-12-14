@@ -26,15 +26,23 @@ def reconcile_tunnel_service(name, namespace, **_):
 
     reconcile(name, namespace)
 
-# This is currently not working properly.
-# Pods is being deleted, then the reconciliation loop is still able to find it.
-@kopf.on.delete("", "v1", "pods", labels={"app.kubernetes.io/managed-by": "k8s-tunnel-controller"})
+
+@kopf.on.delete("", "v1", "pods", labels={"app.kubernetes.io/managed-by": BASE_ANNOTATION})
 def delete_tunnel_pod(name, namespace, labels, **_):
     logger.info(
         f"delete pod ({namespace}/{name}) listened with the app.kubernetes.io/managed-by label")
 
     serviceName = labels.get("app.kubernetes.io/service")
-    reconcile(serviceName, namespace)
+    svc = services.get(namespace=namespace, name=serviceName)
+    if svc:
+        podTunnel = tunnel.find_tunnel(svc=svc)
+        if podTunnel:
+            raise kopf.TemporaryError(
+                "The pod is being deleted. Retry in 10 seconds.", delay=10)
+        reconcile(serviceName, namespace)
+    else:
+        logger.info(
+            f"wont recreate the tunnel pod as parent ({namespace}/{serviceName}) service does not longer exists")
 
 
 @kopf.on.field("", "v1", "service", field="metadata.annotations")
@@ -49,11 +57,15 @@ def update_service_annotations(diff, name, namespace, **_):
 
     for d in diff:
         action = d[0]
+
         # TODO: Improve this code-block
+        # Received an event like (('add', None, None, {'hello': 'world'}),)
+        # We should omit this case.
         try:
             annotation = d[1][0]
         except IndexError:
             annotation = None
+
         if annotation and annotation == TUNNEL_ANNOTATION:
             svc = services.get(namespace=namespace, name=name)
             podTunnel = tunnel.find_tunnel(svc=svc)
@@ -121,6 +133,5 @@ def reconcile(name, namespace):
                           port=port, subdomain=subdomain)
 
 # TODO. Think about adding a new status event when tunnel pod is deployed
-# TODO. Listen for pods with certain annotations, then run the reconciliation loop
 # TODO. Validate subdomain format
 # TODO. Validate port format. Only numbers allowed.

@@ -9,6 +9,7 @@ from src.kubernetes.ensure import ensure
 
 logger = getLogger(__name__)
 
+# TODO: Improve the way we handle the labels
 
 @kubernetes_api
 def create(api, svc: Service, port: int, subdomain: str):
@@ -141,4 +142,4 @@ def find_tunnel(svc: Service) -> Pod:
         "app.kubernetes.io/name": "tunnel",
         "app.kubernetes.io/service": svc.name,
     }
-    return pods.get(namespace=svc.namespace, labels=labels)
+    return pods.get(namespace=svc.namespace, labels=labels, ready=True)
