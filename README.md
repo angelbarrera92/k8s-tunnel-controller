@@ -47,19 +47,6 @@ tunnels-control-plane   Ready    control-plane,master   3m38s   v1.21.1
 
 #### Run the project
 
-##### Pre-requisites
-
-This is a **MVP**, so we need to install some pre-requisites.
-This certificates must be generated per namespace and must be the controller the one in charge of creating it.
-
-```bash
-$ openssl req -x509 -nodes -newkey rsa:2048 -sha256 -keyout client.key -out client.crt
-$ kubectl create secret tls k8s-tunnel-controller-certs --cert client.crt --key client.key
-secret/k8s-tunnel-controller-certs created
-```
-
-##### Run the project
-
 ```bash
 $ git clone git@github.com:angelbarrera92/k8s-tunnel-controller.git
 $ cd k8s-tunnel-controller

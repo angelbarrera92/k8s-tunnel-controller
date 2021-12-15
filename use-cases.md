@@ -1,0 +1,29 @@
+# Use cases
+
+- Create a service
+    - Create pod, config and secret
+- Modify a service
+    - Check if annotation was added
+        - Create pod config and secret
+    - Check if annotation was removed
+        - Remove pod config and secret
+    - Check if any listed annotation changed
+        - Remove pod config and secret
+        - Create pod config and secret
+- Delete a service
+    - Let Kubernetes do its work (parent - child relationship)
+- Edit the configmap
+    - Delete configmap
+    - Create configmap
+- Delete the configmap
+    - Create configmap
+- Edit the secret
+    - Delete secret
+    - Create secret
+- Delete the secret
+    - Create secret
+- Edit the pod
+    - Delete pod
+    - Create pod
+- Delete the pod
+    - Create pod
