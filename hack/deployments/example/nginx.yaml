@@ -32,3 +32,17 @@ spec:
   selector:
     run: nginx
   type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-default
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: nginx
+  type: ClusterIP
