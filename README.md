@@ -1,27 +1,28 @@
-# k8s-tunnel-controller
+# Kubernetes Tunnel Controller
 
-This project is an **MVP** demonstrating how easy is to expose an internal Kubernetes services to the worlwide
+**ATTENTION:** This project is currently in active developing phase.
+It was born to demonstrate how easy could it be to expose an internal Kubernetes services to the worlwide
 with automatic TLS without cert-manager, DNS or opening ports in your home network/router.
 
 ## Based on go-http-tunnel
 
 This project uses the [go-http-tunnel](https://github.com/mmatczuk/go-http-tunnel) by [`mmatczuk`](https://github.com/mmatczuk) upstream projec.
+The server side component is running in a cloud instance.
 
-## MVP: run it locally
+Ideally, this kubernetes controller will hide the technical details of the tunneling and expose a simple API to expose services.
+
+## Run it locally (from outside the cluster)
 
 ### Requirements
 
-Basic requirements these days:
+- `kind` and `kubectl`
+- access to Github *(tunnel container image currently there)*
+- `python 3.9` - `virtualenv`
+- `git`
 
-- kind - kubectl *(of course)*
-- access to dockerhub (tunnel container image currently there)
-- python 3.9 - virtualenv
-- git
-- openssl
+### Create the (local) cluster
 
-### Let's go
-
-#### Create the (local) cluster
+*Avoid this step if you already have a running cluster.*
 
 ```bash
 $ kind create cluster --name tunnels
@@ -45,7 +46,7 @@ NAME                    STATUS   ROLES                  AGE     VERSION
 tunnels-control-plane   Ready    control-plane,master   3m38s   v1.21.1
 ```
 
-#### Run the project
+### Run the project
 
 ```bash
 $ git clone git@github.com:angelbarrera92/k8s-tunnel-controller.git
@@ -63,9 +64,9 @@ $ kopf run controller.py
 [2021-11-28 13:37:04,088] kopf._core.engines.a [INFO    ] Initial authentication has finished.
 ```
 
-#### Execute the examples
+### Execute the examples
 
-**Open a new terminal** *(to don't stop the controller)* configure the `KUBECONFIG` env variable then:
+**Open a new terminal** *(avoid to stop the controller)* configure the `KUBECONFIG` env variable then:
 
 ```bash
 $ export KUBECONFIG=$(pwd)/kubeconfig
@@ -77,7 +78,7 @@ pod/nginx created
 service/nginx created
 ```
 
-Then, a new **pod** have to be created:
+Then, a new **pod,configmap and secret** will pop up in the cluster:
 
 ```bash
 $ kubectl get pods
@@ -111,11 +112,6 @@ Finally, visiting it:
 
 ![welcomepage](docs/images/welcome.png)
 
-Then click on continue
-
-![nginx](docs/images/nginx.png)
-
 ## Next steps
 
-There are a lot of `TODO`s in code. Then a lot of ideas, this is just an MVP. Thanks!
-
+There are a lot of `TODO`s in code. Then a lot of ideas. Thanks!
