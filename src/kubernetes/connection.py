@@ -14,6 +14,7 @@ def kubernetes_api(function):
             _connect()
         res = function(client, *args, **kwargs)
         return res
+
     return wrap_function
 
 
@@ -21,8 +22,7 @@ def _connect():
     try:
         config = KubeConfig.from_service_account()
     except FileNotFoundError:
-        config = KubeConfig.from_file(
-            getenv("KUBECONFIG", "~/.kube/config"))
+        config = KubeConfig.from_file(getenv("KUBECONFIG", "~/.kube/config"))
 
     global client
     client = HTTPClient(config)

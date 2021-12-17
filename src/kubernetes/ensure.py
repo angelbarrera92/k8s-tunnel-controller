@@ -8,10 +8,12 @@ def adopt(owner: APIObject, children: APIObject) -> APIObject:
         "apiVersion": owner.version,
         "kind": owner.__class__.__name__,
         "name": owner.name,
-        "uid": owner.metadata["uid"]
+        "uid": owner.metadata["uid"],
     }
-    if not any(child_owner.get("uid") == owner.metadata["uid"]
-               for child_owner in children.metadata["ownerReferences"]):
+    if not any(
+        child_owner.get("uid") == owner.metadata["uid"]
+        for child_owner in children.metadata["ownerReferences"]
+    ):
         children.metadata["ownerReferences"].append(owner_reference)
     return children
 

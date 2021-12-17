@@ -6,7 +6,11 @@ FROM debian:bullseye
 
 COPY --from=builder /go/bin/tunnel /usr/local/bin/tunnel
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates
+# hadolint ignore=DL3008
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-CMD tunnel -h
+CMD ["tunnel", "-h"]

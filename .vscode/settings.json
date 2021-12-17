@@ -1,0 +1,21 @@
+{
+    "python.linting.enabled": true,
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.pythonPath": "./venv/bin/python3",
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--rcfile=.github/linters/.pylintrc"
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--config",
+        ".github/linters/.flake8"
+    ],
+    "python.sortImports.path": "./venv/bin/isort",
+    "python.sortImports.args": [
+        "--check",
+        "--sp",
+        ".github/linters/.isort.cfg"
+    ]
+}

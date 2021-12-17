@@ -22,8 +22,7 @@ def service_port(svc: Service) -> int:
             logger.error(errorMsg)
             raise kopf.PermanentError(errorMsg)
     else:
-        logger.warn(
-            f"no port in annotation for service {svc.namespace}/{svc.name}")
+        logger.warn(f"no port in annotation for service {svc.namespace}/{svc.name}")
         if len(svc.obj["spec"]["ports"]) == 1:
             port = svc.obj["spec"]["ports"][0]["port"]
         else:

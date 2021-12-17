@@ -4,11 +4,11 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY controller.py .
 COPY src .
 
 ENV LOGGING_LEVEL=INFO
 
-CMD kopf run controller.py
+CMD ["kopf", "run", "controller.py"]

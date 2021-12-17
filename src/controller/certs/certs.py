@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 
+
 # TODO: Currently, the cert is just a tech requirement to make this project working
 # In the future, there should be only one cert for each controller/client (paid? version with custom domain/subdomain).
 def generateSelfSignedClientCertificate(commonName: str):
@@ -15,9 +16,7 @@ def generateSelfSignedClientCertificate(commonName: str):
         backend=default_backend(),
     )
 
-    name = x509.Name([
-        x509.NameAttribute(NameOID.COMMON_NAME, commonName)
-    ])
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, commonName)])
 
     alt_names = [x509.DNSName(commonName)]
     san = x509.SubjectAlternativeName(alt_names)

@@ -7,7 +7,7 @@ with automatic TLS without cert-manager, DNS or opening ports in your home netwo
 ## Based on go-http-tunnel
 
 This project uses the [go-http-tunnel](https://github.com/mmatczuk/go-http-tunnel) by [`mmatczuk`](https://github.com/mmatczuk) upstream projec.
-The server side component is running in a cloud instance.
+The server-side component is running in a cloud instance.
 
 Ideally, this kubernetes controller will hide the technical details of the tunneling and expose a simple API to expose services.
 
@@ -16,7 +16,7 @@ Ideally, this kubernetes controller will hide the technical details of the tunne
 ### Requirements
 
 - `kind` and `kubectl`
-- access to Github *(tunnel container image currently there)*
+- access to GitHub *(tunnel container image currently there)*
 - `python 3.9` - `virtualenv`
 - `git`
 
