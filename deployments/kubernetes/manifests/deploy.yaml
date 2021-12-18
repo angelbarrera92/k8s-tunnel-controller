@@ -1,0 +1,155 @@
+---
+# Source: k8s-tunnel-controller/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: RELEASE-NAME-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: k8s-tunnel-controller/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: RELEASE-NAME-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - secrets
+  - configmaps
+  - services
+  - events
+  verbs:
+  - "*"
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - "*"
+---
+# Source: k8s-tunnel-controller/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: RELEASE-NAME-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: RELEASE-NAME-k8s-tunnel-controller
+subjects:
+- kind: ServiceAccount
+  name: RELEASE-NAME-k8s-tunnel-controller
+  namespace: default
+---
+# Source: k8s-tunnel-controller/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: RELEASE-NAME-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+---
+# Source: k8s-tunnel-controller/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: RELEASE-NAME-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8s-tunnel-controller
+      app.kubernetes.io/instance: RELEASE-NAME
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8s-tunnel-controller
+        app.kubernetes.io/instance: RELEASE-NAME
+    spec:
+      serviceAccountName: RELEASE-NAME-k8s-tunnel-controller
+      securityContext:
+        {}
+      containers:
+        - name: k8s-tunnel-controller
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          image: "ghcr.io/angelbarrera92/k8s-tunnel-controller:main"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: k8s-tunnel-controller/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "RELEASE-NAME-k8s-tunnel-controller-test-connection"
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['RELEASE-NAME-k8s-tunnel-controller:8080/healthz']
+  restartPolicy: Never
