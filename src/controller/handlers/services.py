@@ -87,7 +87,6 @@ def create_tunnel(svc: Service):
     tunnelPort = service_port(svc)
     tunnelSubdomain = tunnel_subdomain(svc)
     logger.info(f"tunnel port {tunnelPort} and subdomain {tunnelSubdomain}")
-    logger.info("create secret")
     secret = tunnel.create_secret(svc, tunnelPort, tunnelSubdomain)
     logger.info(f"secret {secret.namespace}/{secret.name} created")
     configmap = tunnel.create_configmap(svc, tunnelPort, tunnelSubdomain)

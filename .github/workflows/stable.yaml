@@ -6,6 +6,10 @@ on:
   push:
     branches:
       - main
+  workflow_run:
+    workflows: ["End to End Tests"]
+    types:
+      - completed
 
 env:
   REGISTRY: ghcr.io
@@ -17,6 +21,7 @@ jobs:
   images:
     name: Container Images
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: read
       packages: write
