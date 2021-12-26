@@ -1,0 +1,6 @@
+{
+    "ignore": [
+        "deployments/kubernetes/helm/*",
+        "deployments/kubernetes/manifests/deploy.yaml"
+    ]
+}

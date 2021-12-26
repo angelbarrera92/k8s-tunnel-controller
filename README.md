@@ -82,12 +82,12 @@ Then, a new **pod,configmap and secret** will pop up in the cluster:
 
 ```bash
 $ kubectl get pods
-NAME                            READY   STATUS              RESTARTS   AGE
-nginx                           1/1     Running             0          37s
-nginx-random-goes-here-xyz123   0/1     ContainerCreating   0          37s
+NAME                    READY   STATUS              RESTARTS   AGE
+nginx                   0/1     ContainerCreating   0          6s
+nginx-80-tunnel-afmmo   0/1     ContainerCreating   0          6s
 ```
 
-The `nginx-random-goes-here-xyz123` pod has been created by the controller. Why? Because the service contains a magic annotation: `k8s-tunnel-controller/tunnel: nginx-random-goes-here-xyz123`
+The `nginx-80-tunnel-afmmo` pod has been created by the controller. Why? Because the service contains a magic annotation: `k8s-tunnel-controller/tunnel: nginx-1`
 
 ```bash
 $ kubectl get svc nginx -o yaml
@@ -95,23 +95,83 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    k8s-tunnel-controller/tunnel: nginx-random-goes-here-xyz123
+    k8s-tunnel-controller/tunnel: nginx-1
 <REDACTED>
 ```
 
 Checking the logs of the pods created:
 
 ```bash
-$ kubectl logs -f nginx-random-goes-here-xyz123
-your url is: https://nginx-random-goes-here-xyz123.loca.lt
+$ kubectl logs -f nginx-80-tunnel-afmmo
+2021/12/26 06:19:16 config server_addr: tunnels.o.barrera.dev:5223
+tls_crt: /certs/client.crt
+tls_key: /certs/client.key
+root_ca: ""
+backoff:
+  interval: 500ms
+  multiplier: 1.5
+  max_interval: 1m0s
+  max_time: 15m0s
+tunnels:
+  nginx:
+    proto: http
+    addr: http://nginx:80
+    host: nginx-1.tunnels.o.barrera.dev
+
+2021/12/26 06:19:16 level 1 action start
+2021/12/26 06:19:16 level 1 action dial network tcp addr tunnels.o.barrera.dev:5223
+2021/12/26 06:19:16 level 1 action handshake addr 129.159.204.185:5223
 ```
 
-You'll see the right URL. It contains the subdomain specified in the annotation: `nginx-random-goes-here-xyz123`.
+You'll see the right URL. It contains the subdomain specified in the annotation: `nginx-1.tunnels.o.barrera.dev`.
 
 Finally, visiting it:
 
-![welcomepage](docs/images/welcome.png)
+![welcomepage](docs/images/nginx.png)
+
+### Important notes
+
+The project uses a `barrera.dev` subdomain tu expose your services. Take in mind the following assumptions:
+
+- Your chossen subdomain must be unique.
+  - Using the value `my-service` in the `k8s-tunnel-controller/tunne` annotation will result in a FQDN `my-service.tunnels.o.barrera.dev`.
+  - It could be a good idea to add your username to the subdomain: `my-service-<username>`, then `my-service-<username>.tunnels.o.barrera.dev`.
+- There's no automatic way to use a different domain.
+  - If you want to use your own domain or a different `tunnels.o.barrera.dev` subdomain `(dedicated tenant)`, contact me.
+
+## Deploy using Helm
+
+This project uses [`helm`](https://helm.sh/) chart to deploy the controller.
+
+```bash
+$ helm upgrade --install tunnels deployments/kubernetes/helm/k8s-tunnel-controller/
+Release "tunnels" does not exist. Installing it now.
+NAME: tunnels
+LAST DEPLOYED: Sun Dec 26 07:23:42 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=k8s-tunnel-controller,app.kubernetes.io/instance=tunnels" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
+```
+
 
 ## Next steps
 
-There are a lot of `TODO`s in code. Then a lot of ideas. Thanks!
+- There are a lot of `TODO`s in code.
+- Publish server-side code and documentation.
+- Automate helm chart documentation (frigate) and add it to the linter phase.
+  - Publish the helm chart in ArtifcatHub.
+- Run as no root
+- Enable use different subdomain.
+  - With docs
+- Change the log levels in all log invocation.
+- Add a `--liveness` and `--readiness` endpoint to the tunnel pod.
+  - Add these endpoint as tunnel pod probes.
+  - Also, add resource limits and requests.
+
+Then a lot of ideas. Thanks!

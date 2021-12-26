@@ -66,7 +66,6 @@ def service_annotation_modification(diff, name, namespace, **_):
 # TODO. Validate subdomain format
 # TODO. Validate port format. Only numbers allowed.
 # TODO. Log level, currently set all logs to info wich is incorrect
-# TODO. Refactor duplicate code
 
 
 def delete_tunnel(svc: Service):
