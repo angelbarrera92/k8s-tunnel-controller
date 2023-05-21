@@ -1,3 +1,2 @@
-kopf==1.35.3
-pykube-ng==21.10.0
-cryptography==36.0.0
+kopf==1.36.1
+pykube-ng==22.9.0
