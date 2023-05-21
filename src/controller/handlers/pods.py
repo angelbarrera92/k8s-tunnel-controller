@@ -40,7 +40,6 @@ def delete_pod(name, namespace, labels, **_):
         tunnelSubdomain = tunnel_subdomain(svc)
         logger.info(f"tunnel port {tunnelPort} and subdomain {tunnelSubdomain}")
 
-        secret = tunnel.find_secret(svc=svc)
         configmap = tunnel.find_configmap(svc=svc)
 
-        tunnel.create_pod(svc, secret, configmap, tunnelPort, tunnelSubdomain)
+        tunnel.create_pod(svc, configmap, tunnelPort, tunnelSubdomain)

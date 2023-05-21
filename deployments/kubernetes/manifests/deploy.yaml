@@ -23,24 +23,24 @@ metadata:
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - pods/status
-  - secrets
-  - configmaps
-  - services
-  - services/status
-  - events
-  verbs:
-  - "*"
-- apiGroups:
-  - events.k8s.io
-  resources:
-  - events
-  verbs:
-  - "*"
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/status
+      - secrets
+      - configmaps
+      - services
+      - services/status
+      - events
+    verbs:
+      - "*"
+  - apiGroups:
+      - events.k8s.io
+    resources:
+      - events
+    verbs:
+      - "*"
 ---
 # Source: k8s-tunnel-controller/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -58,9 +58,9 @@ roleRef:
   kind: ClusterRole
   name: tunnels-k8s-tunnel-controller
 subjects:
-- kind: ServiceAccount
-  name: tunnels-k8s-tunnel-controller
-  namespace: default
+  - kind: ServiceAccount
+    name: tunnels-k8s-tunnel-controller
+    namespace: default
 ---
 # Source: k8s-tunnel-controller/templates/service.yaml
 apiVersion: v1
@@ -108,14 +108,13 @@ spec:
         app.kubernetes.io/instance: tunnels
     spec:
       serviceAccountName: tunnels-k8s-tunnel-controller
-      securityContext:
-        {}
+      securityContext: {}
       containers:
         - name: k8s-tunnel-controller
           securityContext:
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
           image: "ghcr.io/angelbarrera92/k8s-tunnel-controller:main"
           imagePullPolicy: Always
@@ -152,6 +151,6 @@ spec:
   containers:
     - name: wget
       image: busybox
-      command: ['wget']
-      args: ['tunnels-k8s-tunnel-controller:8080/healthz']
+      command: ["wget"]
+      args: ["tunnels-k8s-tunnel-controller:8080/healthz"]
   restartPolicy: Never

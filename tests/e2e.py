@@ -21,7 +21,6 @@ def test_controller():
         "new service (default/nginx) listened with the k8s-tunnel-controller/tunnel annotation"
         in runner.stdout
     )
-    assert "creating tunnel secret for service default/nginx" in runner.stdout
     assert "creating tunnel configmap for service default/nginx" in runner.stdout
     assert "creating tunnel pod for service default/nginx" in runner.stdout
 
@@ -39,7 +38,6 @@ def test_annotations():
     assert runner.exit_code == 0
     assert runner.exception is None
     assert "update service default/nginx-default annotations" in runner.stdout
-    assert "creating tunnel secret for service default/nginx-default" in runner.stdout
     assert (
         "creating tunnel configmap for service default/nginx-default" in runner.stdout
     )
