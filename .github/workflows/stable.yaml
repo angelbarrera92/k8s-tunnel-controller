@@ -14,8 +14,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  TUNNELS_IMAGE_NAME: ${{ github.repository_owner }}/tunnels
-  TUNNELS_VERSION: "2.1"
 
 jobs:
   images:
@@ -50,13 +48,3 @@ jobs:
           file: builder/container-images/controller.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push the tunnels Container image
-        uses: docker/build-push-action@v2.7.0
-        with:
-          context: .
-          push: true
-          file: builder/container-images/tunnel.Dockerfile
-          tags: ${{ env.REGISTRY }}/${{ env.TUNNELS_IMAGE_NAME }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: TUNNEL_VERSION=${{ env.TUNNELS_VERSION }}
