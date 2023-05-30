@@ -3,6 +3,7 @@ from random import choice
 from string import ascii_lowercase
 
 from pykube import ConfigMap, Pod, Service
+from src.controller import TOKEN
 from src.kubernetes import configmaps, pods
 from src.kubernetes.connection import kubernetes_api
 from src.kubernetes.ensure import ensure
@@ -55,7 +56,7 @@ def create_pod(
                 ],
                 "containers": [
                     {
-                        "image": "fatedier/frpc:v0.48.0",
+                        "image": "fatedier/frpc:v0.49.0",
                         "imagePullPolicy": "Always",
                         "args": [
                             "-c",
@@ -100,6 +101,11 @@ def create_configmap(api, svc: Service, port: int, subdomain: str) -> ConfigMap:
 [common]
 server_addr = frp.exit.o.microcloud.dev
 server_port = 7000
+
+authentication_method = token
+token = {TOKEN}
+authenticate_heartbeats = true
+authenticate_new_work_conns = true
 
 [{svc.name}]
 type = http

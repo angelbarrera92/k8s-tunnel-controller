@@ -10,5 +10,6 @@ COPY controller.py /app/controller.py
 COPY src /app/src
 
 ENV LOGGING_LEVEL=INFO
+ENV TOKEN=""
 
 CMD ["kopf", "run", "-A", "--liveness=http://0.0.0.0:8080/healthz", "controller.py"]

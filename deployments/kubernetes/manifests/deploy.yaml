@@ -11,6 +11,22 @@ metadata:
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 ---
+# Source: k8s-tunnel-controller/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tunnels-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: tunnels
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: Opaque
+  stringData:
+    token:
+---
 # Source: k8s-tunnel-controller/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -23,24 +39,24 @@ metadata:
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-      - pods/status
-      - secrets
-      - configmaps
-      - services
-      - services/status
-      - events
-    verbs:
-      - "*"
-  - apiGroups:
-      - events.k8s.io
-    resources:
-      - events
-    verbs:
-      - "*"
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/status
+  - secrets
+  - configmaps
+  - services
+  - services/status
+  - events
+  verbs:
+  - "*"
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - "*"
 ---
 # Source: k8s-tunnel-controller/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -58,9 +74,9 @@ roleRef:
   kind: ClusterRole
   name: tunnels-k8s-tunnel-controller
 subjects:
-  - kind: ServiceAccount
-    name: tunnels-k8s-tunnel-controller
-    namespace: default
+- kind: ServiceAccount
+  name: tunnels-k8s-tunnel-controller
+  namespace: default
 ---
 # Source: k8s-tunnel-controller/templates/service.yaml
 apiVersion: v1
@@ -108,16 +124,23 @@ spec:
         app.kubernetes.io/instance: tunnels
     spec:
       serviceAccountName: tunnels-k8s-tunnel-controller
-      securityContext: {}
+      securityContext:
+        {}
       containers:
         - name: k8s-tunnel-controller
           securityContext:
             capabilities:
               drop:
-                - ALL
+              - ALL
             readOnlyRootFilesystem: true
           image: "ghcr.io/angelbarrera92/k8s-tunnel-controller:main"
           imagePullPolicy: Always
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tunnels-k8s-tunnel-controller
+                  key: token
           ports:
             - name: http
               containerPort: 8080
@@ -151,6 +174,6 @@ spec:
   containers:
     - name: wget
       image: busybox
-      command: ["wget"]
-      args: ["tunnels-k8s-tunnel-controller:8080/healthz"]
+      command: ['wget']
+      args: ['tunnels-k8s-tunnel-controller:8080/healthz']
   restartPolicy: Never
