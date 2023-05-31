@@ -16,13 +16,16 @@ help: Makefile
 .PHONY: frigate
 ## frigate: Run frigate to generate the k8s-tunnel-controller helm chart README.md
 frigate:
-	@docker run -w /app --rm -v ${CURRENT_DIR}:/app docker.io/library/python:3.10 pip install -r requirements-dev.txt && frigate gen --no-credits -o markdown deployments/kubernetes/helm/k8s-tunnel-controller > deployments/kubernetes/helm/k8s-tunnel-controller/README.md
+	@docker pull docker.io/library/python:3.10
+	@docker run -w /app --rm -v ${CURRENT_DIR}:/app docker.io/library/python:3.10 hack/ci/frigate-gen.sh
 
 .PHONY: lint
 ## lint: Run linters
 lint:
 	@docker pull ghcr.io/github/super-linter:v4
-	@docker run --rm -e RUN_LOCAL=true -e VALIDATE_KUBERNETES_KUBEVAL=false -e VALIDATE_KUBERNETES_KUBECONFORM=false -v ${CURRENT_DIR}:/tmp/lint ghcr.io/github/super-linter:v4
+	@docker run --rm -e RUN_LOCAL=true -e VALIDATE_KUBERNETES_KUBEVAL=false -e VALIDATE_KUBERNETES_KUBECONFORM=false -e FILTER_REGEX_EXCLUDE=deployments/kubernetes/helm/k8s-tunnel-controller/README.md -v ${CURRENT_DIR}:/tmp/lint ghcr.io/github/super-linter:v4
+	@docker pull docker.io/library/python:3.10
+	@docker run -w /app --rm -v ${CURRENT_DIR}:/app docker.io/library/python:3.10 hack/ci/frigate-check.sh
 
 .PHONY: e2e
 ## e2e: Creates a local kind cluster and runs the e2e tests
