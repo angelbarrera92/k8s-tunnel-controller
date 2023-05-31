@@ -2,9 +2,7 @@ name: Release Charts
 
 on:
   push:
-    branches:
-      - main
-      - frp
+    branches: ["*"]
 
 jobs:
   release:
@@ -12,7 +10,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Publish Helm charts
-        uses: stefanprodan/helm-gh-pages@v1
+        if: github.ref == 'refs/heads/main'
+        uses: stefanprodan/helm-gh-pages@v1.7.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           charts_dir: deployments/kubernetes/helm
+      - name: Publish Unstable Helm charts
+        if: github.ref != 'refs/heads/main'
+        uses: stefanprodan/helm-gh-pages@v1.7.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          charts_dir: deployments/kubernetes/helm
+          chart_version: 0.0.0-${{ github.sha }}
+      
