@@ -60,3 +60,18 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Validate:
+- Values.token.existingSecret and Values.token.tokenValue are not both set
+- Values.token.existingSecret or Values.token.tokenValue is set
+*/}}
+{{- define "k8s-tunnel-controller.validate" -}}
+{{- if and .Values.token.existingSecret .Values.token.tokenValue }}
+{{- fail "Values.token.existingSecret and Values.token.tokenValue are both set. Please set only one of them." }}
+{{- end }}
+{{- if and (not .Values.token.existingSecret) (not .Values.token.tokenValue) }}
+{{- fail "Values.token.existingSecret and Values.token.tokenValue are both not set. Please set one of them." }}
+{{- end }}
+{{- end }}
+

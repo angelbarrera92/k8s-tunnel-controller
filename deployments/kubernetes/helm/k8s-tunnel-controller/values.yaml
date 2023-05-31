@@ -2,6 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+token:
+  existingSecret: ""
+  tokenKey: "token"
+  # This is not required if existingSecret is set
+  # So it is required if existingSecret is not set
+  tokenValue: ""
+
 replicaCount: 1
 
 image:
@@ -9,8 +16,6 @@ image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "main"
-
-token: ""
 
 imagePullSecrets: []
 nameOverride: ""

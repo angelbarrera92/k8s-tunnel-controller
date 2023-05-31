@@ -10,6 +10,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+      - name: Validate Helm Chart Documentation
+        run: |
+          python -m pip install -r requirements-dev.txt
+          tempFile=$(mktemp)
+          frigate gen --no-credits -o markdown deployments/kubernetes/helm/k8s-tunnel-controller > $tempFile
+          diff -u deployments/kubernetes/helm/k8s-tunnel-controller/README.md $tempFile
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:

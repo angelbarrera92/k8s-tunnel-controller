@@ -13,6 +13,11 @@ help: Makefile
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
 
+.PHONY: frigate
+## frigate: Run frigate to generate the k8s-tunnel-controller helm chart README.md
+frigate:
+	@docker run -w /app --rm -v ${CURRENT_DIR}:/app docker.io/library/python:3.10 pip install -r requirements-dev.txt && frigate gen --no-credits -o markdown deployments/kubernetes/helm/k8s-tunnel-controller > deployments/kubernetes/helm/k8s-tunnel-controller/README.md
+
 .PHONY: lint
 ## lint: Run linters
 lint:
