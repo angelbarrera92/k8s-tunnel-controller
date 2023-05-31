@@ -16,8 +16,8 @@ help: Makefile
 .PHONY: lint
 ## lint: Run linters
 lint:
-	@docker pull github/super-linter
-	@docker run --rm -e RUN_LOCAL=true -e VALIDATE_KUBERNETES_KUBEVAL=false -e VALIDATE_KUBERNETES_KUBECONFORM=false -v ${CURRENT_DIR}:/tmp/lint github/super-linter
+	@docker pull ghcr.io/github/super-linter:v4
+	@docker run --rm -e RUN_LOCAL=true -e VALIDATE_KUBERNETES_KUBEVAL=false -e VALIDATE_KUBERNETES_KUBECONFORM=false -v ${CURRENT_DIR}:/tmp/lint ghcr.io/github/super-linter:v4
 
 .PHONY: e2e
 ## e2e: Creates a local kind cluster and runs the e2e tests
