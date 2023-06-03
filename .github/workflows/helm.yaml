@@ -22,4 +22,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           charts_dir: deployments/kubernetes/helm
           chart_version: 0.0.0-${{ github.sha }}
-      
