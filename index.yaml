@@ -12,6 +12,16 @@ entries:
     - https://angelbarrera92.github.io/k8s-tunnel-controller/k8s-tunnel-controller-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v2
+    appVersion: 0.2.0
+    created: "2023-06-03T16:51:01.327866254Z"
+    description: A Helm chart for Kubernetes
+    digest: 6342c05e7bb62899aa8a4999a73ec428b5d8e0dd9c11c75ac71f40b13b353759
+    name: k8s-tunnel-controller
+    type: application
+    urls:
+    - https://angelbarrera92.github.io/k8s-tunnel-controller/k8s-tunnel-controller-0.0.0-fc04b758203ec050d3f8252a331b24c21a6f4552.tgz
+    version: 0.0.0-fc04b758203ec050d3f8252a331b24c21a6f4552
+  - apiVersion: v2
     appVersion: 0.1.0
     created: "2023-05-31T18:49:12.155453907Z"
     description: A Helm chart for Kubernetes
@@ -51,4 +61,4 @@ entries:
     urls:
     - https://angelbarrera92.github.io/k8s-tunnel-controller/k8s-tunnel-controller-0.0.0-1e43ff865b17f191599ce316cd1979982f4b927a.tgz
     version: 0.0.0-1e43ff865b17f191599ce316cd1979982f4b927a
-generated: "2023-06-03T16:37:07.439643332Z"
+generated: "2023-06-03T16:51:01.326043729Z"
