@@ -5,11 +5,27 @@ kind: ServiceAccount
 metadata:
   name: tunnels-k8s-tunnel-controller
   labels:
-    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
     app.kubernetes.io/name: k8s-tunnel-controller
     app.kubernetes.io/instance: tunnels
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
+---
+# Source: k8s-tunnel-controller/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tunnels-k8s-tunnel-controller
+  labels:
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
+    app.kubernetes.io/name: k8s-tunnel-controller
+    app.kubernetes.io/instance: tunnels
+    app.kubernetes.io/version: "0.2.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: Opaque
+  stringData:
+    token: the-token
 ---
 # Source: k8s-tunnel-controller/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -17,10 +33,10 @@ kind: ClusterRole
 metadata:
   name: tunnels-k8s-tunnel-controller
   labels:
-    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
     app.kubernetes.io/name: k8s-tunnel-controller
     app.kubernetes.io/instance: tunnels
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 rules:
 - apiGroups:
@@ -48,10 +64,10 @@ kind: ClusterRoleBinding
 metadata:
   name: tunnels-k8s-tunnel-controller
   labels:
-    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
     app.kubernetes.io/name: k8s-tunnel-controller
     app.kubernetes.io/instance: tunnels
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -68,10 +84,10 @@ kind: Service
 metadata:
   name: tunnels-k8s-tunnel-controller
   labels:
-    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
     app.kubernetes.io/name: k8s-tunnel-controller
     app.kubernetes.io/instance: tunnels
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -90,10 +106,10 @@ kind: Deployment
 metadata:
   name: tunnels-k8s-tunnel-controller
   labels:
-    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
     app.kubernetes.io/name: k8s-tunnel-controller
     app.kubernetes.io/instance: tunnels
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -119,6 +135,12 @@ spec:
             readOnlyRootFilesystem: true
           image: "ghcr.io/angelbarrera92/k8s-tunnel-controller:main"
           imagePullPolicy: Always
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tunnels-k8s-tunnel-controller
+                  key: token
           ports:
             - name: http
               containerPort: 8080
@@ -141,10 +163,10 @@ kind: Pod
 metadata:
   name: "tunnels-k8s-tunnel-controller-test-connection"
   labels:
-    helm.sh/chart: k8s-tunnel-controller-0.1.0
+    helm.sh/chart: k8s-tunnel-controller-0.2.0
     app.kubernetes.io/name: k8s-tunnel-controller
     app.kubernetes.io/instance: tunnels
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "0.2.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     "helm.sh/hook": test

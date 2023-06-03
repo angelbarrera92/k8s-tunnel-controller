@@ -1,0 +1,51 @@
+# Create a deployment mounting a configmap as volume
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: frp-client-config
+data:
+  config.init: |
+    [common]
+    server_addr = frp.exit.o.microcloud.dev
+    server_port = 7000
+
+    [nginx]
+    type = http
+    local_ip = nginx
+    local_port = 80
+    subdomain = nginx
+    use_encryption = true
+    use_compression = true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frp-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frp-client
+  template:
+    metadata:
+      labels:
+        app: frp-client
+    spec:
+      containers:
+        - name: frp-client
+          image: fatedier/frpc:v0.48.0
+          args:
+            - -c
+            - /etc/frp/frpc.ini
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/frp
+      volumes:
+        - name: config-volume
+          configMap:
+            name: frp-client-config
+            items:
+              - key: config.init
+                path: frpc.ini

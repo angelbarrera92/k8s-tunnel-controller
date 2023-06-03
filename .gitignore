@@ -157,5 +157,3 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/python,virtualenv
 
 kubeconfig
-client.crt
-client.key

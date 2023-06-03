@@ -18,6 +18,7 @@ logger = getLogger(__name__)
 def update_pod(name, namespace, labels, **_):
     logger.info(f"update pods {namespace}/{name}")
     logger.info("query the service")
+    # pylint: disable=E1120
     svc = services.get(namespace=namespace, name=labels["app.kubernetes.io/service"])
     logger.info(f"service found ({svc.namespace}/{svc.name})")
     pod = tunnel.find_pod(svc=svc)
@@ -33,6 +34,7 @@ def delete_pod(name, namespace, labels, **_):
     logger.info(f"delete pod {namespace}/{name}")
 
     logger.info("query the service")
+    # pylint: disable=E1120
     svc = services.get(namespace=namespace, name=labels["app.kubernetes.io/service"])
     if svc:
         logger.info("gathering tunnel information")
@@ -40,7 +42,6 @@ def delete_pod(name, namespace, labels, **_):
         tunnelSubdomain = tunnel_subdomain(svc)
         logger.info(f"tunnel port {tunnelPort} and subdomain {tunnelSubdomain}")
 
-        secret = tunnel.find_secret(svc=svc)
         configmap = tunnel.find_configmap(svc=svc)
 
-        tunnel.create_pod(svc, secret, configmap, tunnelPort, tunnelSubdomain)
+        tunnel.create_pod(svc, configmap, tunnelPort, tunnelSubdomain)

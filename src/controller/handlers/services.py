@@ -20,6 +20,7 @@ def service_creation(name, namespace, **_):
         f"new service ({namespace}/{name}) listened with the {TUNNEL_ANNOTATION} annotation"
     )
     logger.info("query the service")
+    # pylint: disable=E1120
     svc = services.get(namespace=namespace, name=name)
     create_tunnel(svc)
 
@@ -47,6 +48,7 @@ def service_annotation_modification(diff, name, namespace, **_):
 
         if annotation and (annotation in [TUNNEL_ANNOTATION, PORT_ANNOTATION]):
             logger.info(f"{action} annotation {annotation}")
+            # pylint: disable=E1120
             svc = services.get(namespace=namespace, name=name)
             if annotation == TUNNEL_ANNOTATION:
                 if action == "remove":
@@ -72,13 +74,10 @@ def delete_tunnel(svc: Service):
     logger.info(f"remove tunnel for service {svc.namespace}/{svc.name}")
     pod = tunnel.find_pod(svc=svc)
     configmap = tunnel.find_configmap(svc=svc)
-    secret = tunnel.find_secret(svc=svc)
     logger.info(f"remove tunnel pod for service {svc.namespace}/{svc.name}")
     pod.delete()
     logger.info(f"remove tunnel configmap for service {svc.namespace}/{svc.name}")
     configmap.delete()
-    logger.info(f"remove tunnel secret for service {svc.namespace}/{svc.name}")
-    secret.delete()
 
 
 def create_tunnel(svc: Service):
@@ -86,9 +85,9 @@ def create_tunnel(svc: Service):
     tunnelPort = service_port(svc)
     tunnelSubdomain = tunnel_subdomain(svc)
     logger.info(f"tunnel port {tunnelPort} and subdomain {tunnelSubdomain}")
-    secret = tunnel.create_secret(svc, tunnelPort, tunnelSubdomain)
-    logger.info(f"secret {secret.namespace}/{secret.name} created")
+    # pylint: disable=E1120
     configmap = tunnel.create_configmap(svc, tunnelPort, tunnelSubdomain)
     logger.info(f"configmap {configmap.namespace}/{configmap.name} created")
-    pod = tunnel.create_pod(svc, secret, configmap, tunnelPort, tunnelSubdomain)
+    # pylint: disable=E1120
+    pod = tunnel.create_pod(svc, configmap, tunnelPort, tunnelSubdomain)
     logger.info(f"pod {pod.namespace}/{pod.name} created")

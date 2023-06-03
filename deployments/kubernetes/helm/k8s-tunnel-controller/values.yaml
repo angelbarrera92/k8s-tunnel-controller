@@ -2,6 +2,22 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+token:
+  tokenKey: "token"
+
+  # existingSecret: ""
+  # tokenValue is not required if existingSecret is set; It is required if existingSecret is not set
+  # tokenValue: ""
+
+## Usage:
+# token:
+#   tokenValue: "<token>"
+
+# token:
+#   # Create the secret by running: kubectl create secret generic <secret-name> --from-literal=token=<token>
+#   existingSecret: "<secret-name>"
+#   tokenKey: "token"
+
 replicaCount: 1
 
 image:
