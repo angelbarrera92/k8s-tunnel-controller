@@ -1,6 +1,6 @@
-# Server side
+# Server-side
 
-As described in the [README.md](../README.md), this controller requires a server side component to run the tunnels.
+As described in the [README.md](../README.md), this controller requires a server-side component to run the tunnels.
 
 ## Free tier
 
