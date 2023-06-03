@@ -3,11 +3,20 @@
 # Declare variables to be passed into your templates.
 
 token:
-  existingSecret: ""
   tokenKey: "token"
-  # This is not required if existingSecret is set
-  # So it is required if existingSecret is not set
-  tokenValue: ""
+
+  # existingSecret: ""
+  # tokenValue is not required if existingSecret is set; It is required if existingSecret is not set
+  # tokenValue: ""
+
+## Usage:
+# token:
+#   tokenValue: "<token>"
+
+# token:
+#   # Create the secret by running: kubectl create secret generic <secret-name> --from-literal=token=<token>
+#   existingSecret: "<secret-name>"
+#   tokenKey: "token"
 
 replicaCount: 1
 

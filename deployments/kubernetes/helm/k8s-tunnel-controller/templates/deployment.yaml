@@ -37,8 +37,8 @@ spec:
             - name: TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "k8s-tunnel-controller.fullname" . }}
-                  key: token
+                  name: {{ include "k8s-tunnel-controller.secretName" . }}
+                  key: {{ include "k8s-tunnel-controller.tokenKey" . }}
           ports:
             - name: http
               containerPort: 8080

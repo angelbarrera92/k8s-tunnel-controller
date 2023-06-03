@@ -11,9 +11,7 @@ The following table lists the configurable parameters of the K8s-tunnel-controll
 
 | Parameter                | Description             | Default        |
 | ------------------------ | ----------------------- | -------------- |
-| `token.existingSecret` |  | `""` |
 | `token.tokenKey` |  | `"token"` |
-| `token.tokenValue` |  | `""` |
 | `replicaCount` |  | `1` |
 | `image.repository` |  | `"ghcr.io/angelbarrera92/k8s-tunnel-controller"` |
 | `image.pullPolicy` |  | `"Always"` |

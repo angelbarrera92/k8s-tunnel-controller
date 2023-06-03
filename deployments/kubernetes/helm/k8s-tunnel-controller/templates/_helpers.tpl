@@ -62,16 +62,35 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Validate:
-- Values.token.existingSecret and Values.token.tokenValue are not both set
-- Values.token.existingSecret or Values.token.tokenValue is set
+Check .Values.token.existingSecret or .Values.token.tokenValue is set, but not both
+TODO: This is not working as I expect
 */}}
-{{- define "k8s-tunnel-controller.validate" -}}
+{{- define "k8s-tunnel-controller.token" -}}
 {{- if and .Values.token.existingSecret .Values.token.tokenValue }}
-{{- fail "Values.token.existingSecret and Values.token.tokenValue are both set. Please set only one of them." }}
-{{- end }}
-{{- if and (not .Values.token.existingSecret) (not .Values.token.tokenValue) }}
-{{- fail "Values.token.existingSecret and Values.token.tokenValue are both not set. Please set one of them." }}
+{{- fail "Values.token.existingSecret and Values.token.tokenValue are mutually exclusive" }}
+{{- else if .Values.token.existingSecret }}
+{{ printf "" }}
+{{- else if .Values.token.tokenValue }}
+{{- include "k8s-tunnel-controller.tokenValue" . }}
+{{- else }}
+{{- fail "Values.token.existingSecret or Values.token.tokenValue is required" }}
 {{- end }}
 {{- end }}
 
+{{/*
+Calculate secret name
+*/}}
+{{- define "k8s-tunnel-controller.secretName" -}}
+{{- default (include "k8s-tunnel-controller.fullname" .) .Values.token.existingSecret }}
+{{- end }}
+
+{{/*
+Validate Values.secret.tokenKey is not empty
+*/}}
+{{- define "k8s-tunnel-controller.tokenKey" -}}
+{{- if .Values.token.tokenKey }}
+{{- default "token" .Values.token.tokenKey }}
+{{- else }}
+{{- fail "Values.token.tokenKey is required" }}
+{{- end }}
+{{- end }}
